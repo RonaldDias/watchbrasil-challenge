@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  categories   Category[]
+  tasksCreated Task[] @relation('TaskCreator')
+  assignments  TaskAssignment[]
+  comments     TaskComment[]
+}
+
+model Category {
+  id     String @id @default
+  name   String
+  color  String
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks  Task[]
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  status      Status   @default(PENDING)
+  priority    Priority @default(MEDIUM)
+  dueDate     DateTime?
+  createdAt   DateTime @default(now())
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  creatorId   String
+  creator     User @relation('TaskCreator', fields: [creatorId], references: [id])
+  assignments TaskAssignment[]
+  comments    TaskComment[]
+}
+
+model TaskAssignment {
+  id     String         @id @default(uuid())
+  role   AssignmentRole @default(COLLABORATOR)
+  taskId String
+  task   Task           @relation(fields[taskId], references: [id], onDelete: Cascade)
+  userId String
+  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, userId])
+}
+
+model TaskComment {
+  id        String @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  taskId String
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Status {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum AssignmentRole {
+  OWNER
+  COLLABORATOR
+  VIEWER
+}
