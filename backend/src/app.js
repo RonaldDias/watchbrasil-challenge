@@ -6,6 +6,7 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
 import taskSubRoutes from "./routes/taskSubRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
+import sseRoutes from "./streaming/sseRoutes.js";
 
 const app = express();
 
@@ -18,5 +19,6 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/tasks/:taskId", taskSubRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/stream", sseRoutes);
 
 export default app;

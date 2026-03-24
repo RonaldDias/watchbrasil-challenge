@@ -1,4 +1,5 @@
 import prisma from "../config/database.js";
+import { sendEvent } from "../streaming/sseManager.js";
 
 export async function addComment(userId, taskId, { content }) {
     const task = await prisma.task.findFirst({
@@ -11,7 +12,7 @@ export async function addComment(userId, taskId, { content }) {
         throw { status: 404, message: "Tarefa não encontrada" };
     }
 
-    return prisma.taskComment.create({
+    const comment = await prisma.taskComment.create({
         data: {
             taskId,
             userId,
@@ -26,6 +27,16 @@ export async function addComment(userId, taskId, { content }) {
             },
         },
     });
+
+    if (task.creatorId !== userId) {
+        sendEvent(task.creatorId, {
+            type: "NEW_COMMENT",
+            taskId,
+            comment,
+        });
+    }
+
+    return comment;
 }
 
 export async function getComments(taskId) {

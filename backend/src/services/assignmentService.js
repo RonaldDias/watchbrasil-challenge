@@ -1,4 +1,5 @@
 import prisma from "../config/database.js";
+import { sendEvent } from "../streaming/sseManager.js";
 
 export async function assignUser(userId, taskId, { email, role }) {
     const task = await prisma.task.findFirst({
@@ -35,7 +36,7 @@ export async function assignUser(userId, taskId, { email, role }) {
         throw { status: 400, message: "Usuário já atribuído a esta tarefa" };
     }
 
-    return prisma.taskAssignment.create({
+    const assignment = await prisma.taskAssignment.create({
         data: {
             taskId,
             userId: targetUser.id,
@@ -51,6 +52,14 @@ export async function assignUser(userId, taskId, { email, role }) {
             },
         },
     });
+
+    sendEvent(targetUser.id, {
+        type: "NEW_ASSIGNMENT",
+        taskId,
+        role: assignment.role,
+    });
+
+    return assignment;
 }
 
 export async function removeAssignment(userId, taskId, assignmentId) {
