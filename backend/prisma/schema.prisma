@@ -21,13 +21,13 @@ model User {
   createdAt DateTime @default(now())
 
   categories   Category[]
-  tasksCreated Task[] @relation('TaskCreator')
+  tasksCreated Task[] @relation("TaskCreator")
   assignments  TaskAssignment[]
   comments     TaskComment[]
 }
 
 model Category {
-  id     String @id @default
+  id     String @id @default(uuid())
   name   String
   color  String
   userId String
@@ -48,7 +48,7 @@ model Task {
   category   Category? @relation(fields: [categoryId], references: [id])
 
   creatorId   String
-  creator     User @relation('TaskCreator', fields: [creatorId], references: [id])
+  creator     User @relation("TaskCreator", fields: [creatorId], references: [id])
   assignments TaskAssignment[]
   comments    TaskComment[]
 }
@@ -57,7 +57,7 @@ model TaskAssignment {
   id     String         @id @default(uuid())
   role   AssignmentRole @default(COLLABORATOR)
   taskId String
-  task   Task           @relation(fields[taskId], references: [id], onDelete: Cascade)
+  task   Task           @relation(fields: [taskId], references: [id], onDelete: Cascade)
   userId String
   user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
