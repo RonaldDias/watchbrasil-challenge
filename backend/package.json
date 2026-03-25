@@ -19,11 +19,13 @@
     "express": "^5.2.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
+    "serverless-http": "^4.0.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "jest": "^30.3.0",
-    "prisma": "^6.19.2"
+    "prisma": "^6.19.2",
+    "serverless": "^4.33.0"
   }
 }
